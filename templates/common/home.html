@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}MedCentral | Home{% endblock %}
+
+{% block content %}
+<section class="hero text-center p-5 mb-5 rounded">
+    <h1 class="display-5 fw-bold">Welcome to MedCentral</h1>
+    <p class="lead">Find a specialist, check their profile and book your appointment in minutes.</p>
+    <a href="{% url 'specialists:doctor-list' %}" class="btn btn-primary btn-lg">Browse doctors</a>
+</section>
+
+<section class="mb-5">
+    <div class="row text-center">
+        <div class="col-md-4">
+            <div class="stat-box p-4 rounded shadow-sm">
+                <h2>{{ doctor_count }}</h2>
+                <p class="mb-0 text-muted">Doctor{{ doctor_count|pluralize }}</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-box p-4 rounded shadow-sm">
+                <h2>{{ department_count }}</h2>
+                <p class="mb-0 text-muted">Department{{ department_count|pluralize }}</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-box p-4 rounded shadow-sm">
+                <h2>{{ appointment_count }}</h2>
+                <p class="mb-0 text-muted">Appointment{{ appointment_count|pluralize }} booked</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section>
+    <h2 class="mb-4">Top-rated doctors</h2>
+    <div class="row g-4">
+        {% for doctor in top_doctors %}
+            <div class="col-md-4">
+                {% include 'partials/doctor_card.html' with doctor=doctor %}
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    No doctors have been added yet.
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
