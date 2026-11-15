@@ -1,0 +1,29 @@
+body {
+    background-color: #f5f7fa;
+}
+
+.hero {
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+}
+
+.stat-box {
+    background-color: #ffffff;
+}
+
+.doctor-card {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.doctor-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.rating {
+    color: #f59f00;
+    font-weight: 600;
+}
+
+.navbar-brand {
+    font-weight: 700;
+}

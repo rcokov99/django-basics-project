@@ -1,10 +1,88 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}MedCentral | Dr. {{ doctor.full_name }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'specialists:doctor-list' %}">Doctors</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Dr. {{ doctor.full_name }}</li>
+    </ol>
+</nav>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h1 class="card-title">Dr. {{ doctor.full_name }}</h1>
+                <h5 class="text-muted">{{ doctor.specialty }}</h5>
+                <p>
+                    <span class="badge bg-primary">{{ doctor.department.name }}</span>
+                    <span class="badge bg-secondary">
+                        {{ doctor.years_of_experience }} year{{ doctor.years_of_experience|pluralize }} of experience
+                    </span>
+                </p>
+                <p class="rating fs-5">⭐ {{ doctor.average_rating|floatformat:1 }} / 5</p>
+                <h5 class="mt-4">About</h5>
+                <p>{{ doctor.bio|linebreaks }}</p>
+
+                <div class="d-flex gap-2 mt-4">
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="mb-0">Patient reviews</h4>
+                </div>
+
+                {% for review in doctor.reviews.all %}
+                    <div class="review border-bottom pb-3 mb-3">
+                        <div class="d-flex justify-content-between">
+                            <strong>{{ review.reviewer_name }}</strong>
+                            <span class="text-muted small">{{ review.created_at|date:"d M Y" }}</span>
+                        </div>
+                        <div class="rating">⭐ {{ review.rating }} / 5</div>
+                        <p class="mb-0">{{ review.comment }}</p>
+                    </div>
+                {% empty %}
+                    <p class="text-muted mb-0">No reviews yet. Be the first to leave one.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">Services offered</div>
+            <ul class="list-group list-group-flush">
+                {% for service in doctor.services.all %}
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>{{ service.name }}
+                            <small class="text-muted d-block">{{ service.duration_minutes }} min</small>
+                        </span>
+                        <span class="fw-bold">${{ service.price }}</span>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item text-muted">No services listed.</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header">Booked slots</div>
+            <ul class="list-group list-group-flush">
+                {% for appointment in doctor.appointments.all %}
+                    <li class="list-group-item">
+                        {{ appointment.appointment_date_time|date:"D, d M Y H:i" }}
+                    </li>
+                {% empty %}
+                    <li class="list-group-item text-muted">No appointments booked.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
