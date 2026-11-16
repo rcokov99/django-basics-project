@@ -37,6 +37,7 @@ class AppointmentForm(BootstrapFormMixin, forms.ModelForm):
             'appointment_date_time': forms.DateTimeInput(
                 attrs={
                     'type': 'datetime-local',
+                    'style': 'line-height: 1.2; padding-top: 0.375rem; padding-bottom: 0.375rem;',
                 },
                 format='%Y-%m-%dT%H:%M',
             ),
