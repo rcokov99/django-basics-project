@@ -1,6 +1,8 @@
-from django.db.models import Avg, F, Q
-from django.shortcuts import render, get_object_or_404
-from specialists.models import Doctor, Department
+from django.db.models import Avg, Count, F, Q
+from django.shortcuts import get_object_or_404, redirect, render
+
+from specialists.forms import DepartmentForm
+from specialists.models import Department, Doctor
 
 
 def doctor_list_view(request):
@@ -14,8 +16,8 @@ def doctor_list_view(request):
 
     if search_query:
         doctors = doctors.filter(
-            Q(full_name__icontains=search_query) |
-            Q(specialty__icontains=search_query)
+            Q(full_name__icontains=search_query)
+            | Q(specialty__icontains=search_query)
         )
 
     if department_id and department_id.isdigit():
@@ -45,6 +47,35 @@ def doctor_detail_view(request, pk):
         Doctor.objects.select_related('department').prefetch_related(
             'services', 'reviews', 'appointments'
         ),
-        pk=pk
+        pk=pk,
     )
     return render(request, 'specialists/doctor_detail.html', {'doctor': doctor})
+
+
+# --- DEPARTMENT VIEWS ---
+
+
+def department_list_view(request):
+    departments = Department.objects.annotate(
+        doctor_total=Count('doctors')
+    ).order_by('name')
+
+    context = {
+        'departments': departments,
+    }
+    return render(request, 'specialists/department_list.html', context)
+
+
+def department_create_view(request):
+    if request.method == 'POST':
+        form = DepartmentForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('specialists:department-list')
+    else:
+        form = DepartmentForm()
+
+    context = {
+        'form': form,
+    }
+    return render(request, 'specialists/department_form.html', context)
