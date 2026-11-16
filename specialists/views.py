@@ -69,6 +69,7 @@ def doctor_create_view(request):
     context = {
         'form': form,
         'departments_exist': Department.objects.exists(),
+        'services_exist': Service.objects.exists(),
     }
     return render(request, 'specialists/doctor_form.html', context)
 
@@ -87,6 +88,7 @@ def doctor_edit_view(request, pk):
         'form': form,
         'doctor': doctor,
         'departments_exist': Department.objects.exists(),
+        'services_exist': Service.objects.exists(),
     }
     return render(request, 'specialists/doctor_form.html', context)
 

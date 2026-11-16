@@ -160,11 +160,15 @@ class DoctorForm(BootstrapFormMixin, forms.ModelForm):
             'department': {
                 'required': 'Please select a department.',
             },
+            'services': {
+                'required': 'Please select at least one service.',
+            },
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['department'].empty_label = 'Select a department'
+        self.fields['services'].required = True
 
     def clean_full_name(self):
         full_name = self.cleaned_data.get('full_name', '').strip()

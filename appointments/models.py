@@ -5,7 +5,7 @@ from specialists.models import Doctor, Service  # Make sure Service is imported
 
 class Appointment(models.Model):
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name='appointments')
-    service = models.ForeignKey(Service, on_delete=models.SET_NULL, null=True, blank=True, related_name='appointments')
+    service = models.ForeignKey(Service, on_delete=models.PROTECT, related_name='appointments')
     patient_name = models.CharField(max_length=100)
     patient_email = models.EmailField(default='')
     appointment_date_time = models.DateTimeField()
@@ -20,8 +20,7 @@ class Appointment(models.Model):
         ]
 
     def __str__(self):
-        service_name = f" - {self.service.name}" if self.service else ""
-        return f"{self.doctor}{service_name} at {self.appointment_date_time.strftime('%Y-%m-%d %H:%M')}"
+        return f"{self.doctor} - {self.service.name} at {self.appointment_date_time.strftime('%Y-%m-%d %H:%M')}"
 
 
 class Review(models.Model):
