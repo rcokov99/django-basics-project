@@ -1,3 +1,4 @@
+from datetime import timedelta
 from django import forms
 from django.utils import timezone
 from appointments.models import Appointment
@@ -97,6 +98,33 @@ class AppointmentForm(BootstrapFormMixin, forms.ModelForm):
             if appt_time.hour < 8 or appt_time.hour > 17 or (appt_time.hour == 17 and appt_time.minute > 0):
                 raise forms.ValidationError('Appointments must be scheduled between 08:00 and 17:00.')
         return appt_time
+
+    def clean(self):
+        cleaned_data = super().clean()
+        doctor = cleaned_data.get('doctor')
+        service = cleaned_data.get('service')
+        appt_time = cleaned_data.get('appointment_date_time')
+
+        if doctor and service and appt_time:
+            duration = timedelta(minutes=service.duration_minutes)
+            appt_end_time = appt_time + duration
+
+            overlapping_appointments = Appointment.objects.filter(doctor=doctor)
+            if self.instance and self.instance.pk:
+                overlapping_appointments = overlapping_appointments.exclude(pk=self.instance.pk)
+
+            for existing in overlapping_appointments:
+                existing_start = existing.appointment_date_time
+                existing_duration = timedelta(minutes=existing.service.duration_minutes)
+                existing_end = existing_start + existing_duration
+
+                if appt_time < existing_end and appt_end_time > existing_start:
+                    raise forms.ValidationError(
+                        f"Dr. {doctor.full_name} already has an overlapping appointment "
+                        f"scheduled from {existing_start.strftime('%H:%M')} to {existing_end.strftime('%H:%M')}."
+                    )
+
+        return cleaned_data
 
 
 class AppointmentDeleteForm(AppointmentForm):
