@@ -1,5 +1,5 @@
 from django import forms
-from specialists.models import Department, Service
+from specialists.models import Department, Service, Doctor
 
 
 class BootstrapFormMixin:
@@ -11,6 +11,8 @@ class BootstrapFormMixin:
         for field in self.fields.values():
             widget = field.widget
             if isinstance(widget, forms.CheckboxInput):
+                widget.attrs['class'] = 'form-check-input'
+            elif isinstance(widget, forms.CheckboxSelectMultiple):
                 widget.attrs['class'] = 'form-check-input'
             elif isinstance(widget, (forms.Select, forms.SelectMultiple)):
                 widget.attrs['class'] = 'form-select'
@@ -115,6 +117,84 @@ class ServiceForm(BootstrapFormMixin, forms.ModelForm):
 
     def clean_duration_minutes(self):
         duration = self.cleaned_data.get('duration_minutes')
-        if duration is not None and duration < 5:
+        if duration is None:
+            return duration
+        if duration < 5:
             raise forms.ValidationError('Service duration must be at least 5 minutes.')
         return duration
+
+
+class DoctorForm(BootstrapFormMixin, forms.ModelForm):
+    class Meta:
+        model = Doctor
+        fields = ['full_name', 'specialty', 'years_of_experience', 'bio', 'department', 'services']
+        labels = {
+            'full_name': 'Full Name',
+            'specialty': 'Medical Specialty',
+            'years_of_experience': 'Years of Experience',
+            'bio': 'Biography',
+            'department': 'Department',
+            'services': 'Offered Services',
+        }
+        help_texts = {
+            'full_name': 'Enter the doctor’s full professional name (letters, spaces, dots, hyphens, and apostrophes).',
+            'specialty': 'Primary area of medical expertise (e.g., Cardiologist).',
+            'years_of_experience': 'Total years practicing medicine (maximum 60).',
+            'bio': 'Provide a short professional biography and background overview.',
+            'department': 'Select the clinical department this doctor belongs to.',
+            'services': 'Select all medical services this specialist provides.',
+        }
+        widgets = {
+            'full_name': forms.TextInput(attrs={
+                'placeholder': 'e.g., John Smith',
+            }),
+            'specialty': forms.TextInput(attrs={
+                'placeholder': 'e.g., Cardiology',
+            }),
+            'years_of_experience': forms.NumberInput(attrs={
+                'placeholder': 'e.g., 10',
+                'min': '0',
+                'max': '60',
+            }),
+            'bio': forms.Textarea(attrs={
+                'placeholder': 'Write a brief professional background and clinical focus...',
+                'rows': 4,
+            }),
+            'department': forms.Select(),
+            'services': forms.CheckboxSelectMultiple(),
+        }
+        error_messages = {
+            'full_name': {
+                'required': 'Please enter the doctor’s full name.',
+            },
+            'specialty': {
+                'required': 'Please specify a specialty.',
+            },
+            'years_of_experience': {
+                'required': 'Please specify years of experience.',
+                'invalid': 'Enter a valid number for experience.',
+            },
+            'department': {
+                'required': 'Please select a department.',
+            },
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['department'].empty_label = 'Select a department'
+
+    def clean_full_name(self):
+        full_name = self.cleaned_data.get('full_name', '').strip()
+        if full_name.lower().startswith(('dr.', 'dr ')):
+            raise forms.ValidationError('Please enter the name without the "Dr." prefix.')
+
+        allowed_symbols = " .'-"
+        if not all(char.isalpha() or char in allowed_symbols for char in full_name):
+            raise forms.ValidationError('Full name can only contain letters, spaces, dots, hyphens and apostrophes.')
+        return full_name
+
+    def clean_years_of_experience(self):
+        years = self.cleaned_data.get('years_of_experience')
+        if years is not None and years > 60:
+            raise forms.ValidationError('Years of experience cannot exceed 60.')
+        return years
