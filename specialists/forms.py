@@ -137,7 +137,7 @@ class DoctorForm(BootstrapFormMixin, forms.ModelForm):
             'services': 'Offered Services',
         }
         help_texts = {
-            'full_name': 'Enter the doctor’s full professional name (letters, spaces, dots, hyphens, and apostrophes).',
+            'full_name': 'Enter the doctor’s full professional name without "Dr." (letters, spaces, dots, hyphens, and apostrophes).',
             'specialty': 'Primary area of medical expertise (e.g., Cardiologist).',
             'years_of_experience': 'Total years practicing medicine (maximum 60).',
             'bio': 'Provide a short professional biography and background overview.',
@@ -185,12 +185,14 @@ class DoctorForm(BootstrapFormMixin, forms.ModelForm):
 
     def clean_full_name(self):
         full_name = self.cleaned_data.get('full_name', '').strip()
+
         if full_name.lower().startswith(('dr.', 'dr ')):
             raise forms.ValidationError('Please enter the name without the "Dr." prefix.')
 
         allowed_symbols = " .'-"
         if not all(char.isalpha() or char in allowed_symbols for char in full_name):
             raise forms.ValidationError('Full name can only contain letters, spaces, dots, hyphens and apostrophes.')
+
         return full_name
 
     def clean_years_of_experience(self):
@@ -198,3 +200,12 @@ class DoctorForm(BootstrapFormMixin, forms.ModelForm):
         if years is not None and years > 60:
             raise forms.ValidationError('Years of experience cannot exceed 60.')
         return years
+
+
+class DoctorDeleteForm(DoctorForm):
+    """Read-only variant of DoctorForm used for confirmation views prior to deletion."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.disabled = True
