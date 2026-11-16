@@ -13,7 +13,7 @@ class BootstrapFormMixin:
             if isinstance(widget, forms.CheckboxInput):
                 widget.attrs['class'] = 'form-check-input'
             elif isinstance(widget, forms.CheckboxSelectMultiple):
-                widget.attrs['class'] = 'form-check-input'
+                widget.attrs['class'] = 'checkbox-list'
             elif isinstance(widget, (forms.Select, forms.SelectMultiple)):
                 widget.attrs['class'] = 'form-select'
             else:

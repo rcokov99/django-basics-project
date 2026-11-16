@@ -27,3 +27,11 @@ body {
 .navbar-brand {
     font-weight: 700;
 }
+
+.checkbox-list > div {
+    margin-bottom: 0.35rem;
+}
+
+.checkbox-list input[type="checkbox"] {
+    margin-right: 0.5rem;
+}
