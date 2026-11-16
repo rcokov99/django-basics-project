@@ -1,6 +1,7 @@
 from django import forms
 from django.utils import timezone
 from appointments.models import Appointment
+from specialists.models import Doctor, Service
 from common.forms import BootstrapFormMixin
 
 
@@ -23,8 +24,8 @@ class AppointmentForm(BootstrapFormMixin, forms.ModelForm):
             'appointment_date_time': 'Choose a future date and time for the visit (08:00 - 17:00).',
         }
         widgets = {
-            'doctor': forms.Select(),
-            'service': forms.Select(),
+            'doctor': forms.Select(attrs={'class': 'form-select'}),
+            'service': forms.Select(attrs={'class': 'form-select'}),
             'patient_name': forms.TextInput(attrs={
                 'placeholder': 'e.g., Jane Doe',
             }),
@@ -34,8 +35,6 @@ class AppointmentForm(BootstrapFormMixin, forms.ModelForm):
             'appointment_date_time': forms.DateTimeInput(
                 attrs={
                     'type': 'datetime-local',
-                    'min': '08:00',
-                    'max': '17:00',
                     'class': 'form-control',
                     'style': 'line-height: 1.2; padding-top: 0.375rem; padding-bottom: 0.375rem;',
                 },
@@ -67,6 +66,29 @@ class AppointmentForm(BootstrapFormMixin, forms.ModelForm):
         self.fields['doctor'].empty_label = 'Select a doctor'
         self.fields['service'].empty_label = 'Select a service'
 
+        self.fields['service'].queryset = Service.objects.none()
+
+        doctor_id = None
+
+        if self.data and self.data.get('doctor'):
+            doctor_id = self.data.get('doctor')
+        elif self.initial and self.initial.get('doctor'):
+            doctor_id = self.initial.get('doctor')
+        elif self.instance and self.instance.pk and self.instance.doctor_id:
+            doctor_id = self.instance.doctor_id
+
+        if doctor_id:
+            try:
+                doctor = Doctor.objects.get(pk=doctor_id)
+                if hasattr(doctor, 'services'):
+                    self.fields['service'].queryset = doctor.services.all()
+                elif hasattr(Service, 'doctors'):
+                    self.fields['service'].queryset = Service.objects.filter(doctors=doctor)
+                else:
+                    self.fields['service'].queryset = Service.objects.all()
+            except Doctor.DoesNotExist:
+                pass
+
     def clean_appointment_date_time(self):
         appt_time = self.cleaned_data.get('appointment_date_time')
         if appt_time:
@@ -78,8 +100,6 @@ class AppointmentForm(BootstrapFormMixin, forms.ModelForm):
 
 
 class AppointmentDeleteForm(AppointmentForm):
-    """Read-only variant of AppointmentForm for deletion confirmations."""
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
