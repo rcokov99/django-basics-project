@@ -1,7 +1,12 @@
 from django.db.models import Avg, Count, F, Q
 from django.shortcuts import get_object_or_404, redirect, render
 
-from specialists.forms import DepartmentForm, ServiceForm
+from specialists.forms import (
+    DepartmentForm,
+    ServiceForm,
+    DoctorForm,
+    DoctorDeleteForm,
+)
 from specialists.models import Department, Doctor, Service
 
 
@@ -50,6 +55,54 @@ def doctor_detail_view(request, pk):
         pk=pk,
     )
     return render(request, 'specialists/doctor_detail.html', {'doctor': doctor})
+
+
+def doctor_create_view(request):
+    if request.method == 'POST':
+        form = DoctorForm(request.POST)
+        if form.is_valid():
+            doctor = form.save()
+            return redirect('specialists:doctor-detail', pk=doctor.pk)
+    else:
+        form = DoctorForm()
+
+    context = {
+        'form': form,
+        'departments_exist': Department.objects.exists(),
+    }
+    return render(request, 'specialists/doctor_form.html', context)
+
+
+def doctor_edit_view(request, pk):
+    doctor = get_object_or_404(Doctor, pk=pk)
+    if request.method == 'POST':
+        form = DoctorForm(request.POST, instance=doctor)
+        if form.is_valid():
+            form.save()
+            return redirect('specialists:doctor-detail', pk=doctor.pk)
+    else:
+        form = DoctorForm(instance=doctor)
+
+    context = {
+        'form': form,
+        'doctor': doctor,
+        'departments_exist': Department.objects.exists(),
+    }
+    return render(request, 'specialists/doctor_form.html', context)
+
+
+def doctor_delete_view(request, pk):
+    doctor = get_object_or_404(Doctor, pk=pk)
+    if request.method == 'POST':
+        doctor.delete()
+        return redirect('specialists:doctor-list')
+
+    form = DoctorDeleteForm(instance=doctor)
+    context = {
+        'form': form,
+        'doctor': doctor,
+    }
+    return render(request, 'specialists/doctor_delete.html', context)
 
 
 # --- DEPARTMENT VIEWS ---

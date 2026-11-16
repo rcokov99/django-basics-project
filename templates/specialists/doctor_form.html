@@ -1,10 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}MedCentral | {% if doctor %}Edit Dr. {{ doctor.full_name }}{% else %}Add doctor{% endif %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h1 class="h3 mb-4">
+                    {% if doctor %}Edit Dr. {{ doctor.full_name }}{% else %}Add doctor{% endif %}
+                </h1>
+
+                {% if not departments_exist %}
+                    <div class="alert alert-warning">
+                        No departments exist yet.
+                        <a href="{% url 'specialists:department-create' %}">Add a department</a> first.
+                    </div>
+                {% endif %}
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% include 'partials/form_fields.html' %}
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        {% if doctor %}
+                            <a href="{% url 'specialists:doctor-detail' doctor.pk %}" class="btn btn-outline-secondary">Cancel</a>
+                        {% else %}
+                            <a href="{% url 'specialists:doctor-list' %}" class="btn btn-outline-secondary">Cancel</a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

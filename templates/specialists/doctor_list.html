@@ -3,48 +3,53 @@
 {% block title %}MedCentral | Doctors{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>Our Specialists</h1>
-</div>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Our Specialists</h1>
+        <a href="{% url 'specialists:doctor-create' %}" class="btn btn-primary">+ Add Doctor</a>
+    </div>
 
-<form method="get" class="row g-3 mb-4 bg-white p-3 rounded shadow-sm">
-    <div class="col-md-4">
-        <input type="text" name="q" value="{{ search_query }}" class="form-control" placeholder="Search by name or specialty...">
-    </div>
-    <div class="col-md-4">
-        <select name="department" class="form-select">
-            <option value="">All Departments</option>
-            {% for dept in departments %}
-                <option value="{{ dept.pk }}" {% if selected_department == dept.pk|stringformat:"s" %}selected{% endif %}>
-                    {{ dept.name }}
-                </option>
-            {% endfor %}
-        </select>
-    </div>
-    <div class="col-md-2">
-        <select name="sort" class="form-select">
-            <option value="">Sort by...</option>
-            <option value="experience" {% if selected_sort == 'experience' %}selected{% endif %}>Most Experienced</option>
-            <option value="rating" {% if selected_sort == 'rating' %}selected{% endif %}>Highest Rated</option>
-            <option value="name" {% if selected_sort == 'name' %}selected{% endif %}>Name (A-Z)</option>
-        </select>
-    </div>
-    <div class="col-md-2 d-grid">
-        <button type="submit" class="btn btn-primary">Filter</button>
-    </div>
-</form>
-
-<div class="row g-4">
-    {% for doctor in doctors %}
+    <form method="get" class="row g-3 mb-4 bg-white p-3 rounded shadow-sm">
         <div class="col-md-4">
-            {% include 'partials/doctor_card.html' with doctor=doctor %}
+            <input type="text" name="q" value="{{ search_query }}" class="form-control"
+                   placeholder="Search by name or specialty...">
         </div>
-    {% empty %}
-        <div class="col-12">
-            <div class="alert alert-info">
-                No doctors found matching your criteria.
+        <div class="col-md-4">
+            <select name="department" class="form-select">
+                <option value="">All Departments</option>
+                {% for dept in departments %}
+                    <option value="{{ dept.pk }}"
+                            {% if selected_department == dept.pk|stringformat:"s" %}selected{% endif %}>
+                        {{ dept.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="sort" class="form-select">
+                <option value="">Sort by...</option>
+                <option value="experience" {% if selected_sort == 'experience' %}selected{% endif %}>Most Experienced
+                </option>
+                <option value="rating" {% if selected_sort == 'rating' %}selected{% endif %}>Highest Rated</option>
+                <option value="name" {% if selected_sort == 'name' %}selected{% endif %}>Name (A-Z)</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-grid">
+            <button type="submit" class="btn btn-primary">Filter</button>
+        </div>
+    </form>
+
+    <div class="row g-4">
+        {% for doctor in doctors %}
+            <div class="col-md-4">
+                {% include 'partials/doctor_card.html' with doctor=doctor %}
             </div>
-        </div>
-    {% endfor %}
-</div>
+        {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    No doctors found matching your criteria.
+                    <a href="{% url 'specialists:doctor-create' %}">Add a doctor</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}
