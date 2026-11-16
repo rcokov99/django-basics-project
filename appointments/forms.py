@@ -1,9 +1,10 @@
-from datetime import timedelta
+from datetime import time, timedelta
 from django import forms
 from django.utils import timezone
 from appointments.models import Appointment
 from specialists.models import Doctor, Service
 from common.forms import BootstrapFormMixin
+from django.core.exceptions import NON_FIELD_ERRORS
 
 
 class AppointmentForm(BootstrapFormMixin, forms.ModelForm):
@@ -25,8 +26,8 @@ class AppointmentForm(BootstrapFormMixin, forms.ModelForm):
             'appointment_date_time': 'Choose a future date and time for the visit (08:00 - 17:00).',
         }
         widgets = {
-            'doctor': forms.Select(attrs={'class': 'form-select'}),
-            'service': forms.Select(attrs={'class': 'form-select'}),
+            'doctor': forms.Select(),
+            'service': forms.Select(),
             'patient_name': forms.TextInput(attrs={
                 'placeholder': 'e.g., Jane Doe',
             }),
@@ -36,8 +37,6 @@ class AppointmentForm(BootstrapFormMixin, forms.ModelForm):
             'appointment_date_time': forms.DateTimeInput(
                 attrs={
                     'type': 'datetime-local',
-                    'class': 'form-control',
-                    'style': 'line-height: 1.2; padding-top: 0.375rem; padding-bottom: 0.375rem;',
                 },
                 format='%Y-%m-%dT%H:%M',
             ),
@@ -60,6 +59,9 @@ class AppointmentForm(BootstrapFormMixin, forms.ModelForm):
                 'required': 'Please specify the appointment date and time.',
                 'invalid': 'Enter a valid date and time format.',
             },
+            NON_FIELD_ERRORS: {
+                'unique_together': 'This doctor is already booked at this date and time. Please choose a different time.',
+            },
         }
 
     def __init__(self, *args, **kwargs):
@@ -67,35 +69,14 @@ class AppointmentForm(BootstrapFormMixin, forms.ModelForm):
         self.fields['doctor'].empty_label = 'Select a doctor'
         self.fields['service'].empty_label = 'Select a service'
 
-        self.fields['service'].queryset = Service.objects.none()
-
-        doctor_id = None
-
-        if self.data and self.data.get('doctor'):
-            doctor_id = self.data.get('doctor')
-        elif self.initial and self.initial.get('doctor'):
-            doctor_id = self.initial.get('doctor')
-        elif self.instance and self.instance.pk and self.instance.doctor_id:
-            doctor_id = self.instance.doctor_id
-
-        if doctor_id:
-            try:
-                doctor = Doctor.objects.get(pk=doctor_id)
-                if hasattr(doctor, 'services'):
-                    self.fields['service'].queryset = doctor.services.all()
-                elif hasattr(Service, 'doctors'):
-                    self.fields['service'].queryset = Service.objects.filter(doctors=doctor)
-                else:
-                    self.fields['service'].queryset = Service.objects.all()
-            except Doctor.DoesNotExist:
-                pass
-
     def clean_appointment_date_time(self):
         appt_time = self.cleaned_data.get('appointment_date_time')
         if appt_time:
             if appt_time < timezone.now():
                 raise forms.ValidationError('Appointment date and time cannot be in the past.')
-            if appt_time.hour < 8 or appt_time.hour > 17 or (appt_time.hour == 17 and appt_time.minute > 0):
+
+            appt_time_only = appt_time.time()
+            if appt_time_only < time(8, 0) or appt_time_only > time(17, 0):
                 raise forms.ValidationError('Appointments must be scheduled between 08:00 and 17:00.')
         return appt_time
 
@@ -105,29 +86,41 @@ class AppointmentForm(BootstrapFormMixin, forms.ModelForm):
         service = cleaned_data.get('service')
         appt_time = cleaned_data.get('appointment_date_time')
 
+        if doctor and service:
+            if not doctor.services.filter(pk=service.pk).exists():
+                self.add_error('service', 'This doctor does not offer the selected service.')
+                return cleaned_data
+
         if doctor and service and appt_time:
             duration = timedelta(minutes=service.duration_minutes)
             appt_end_time = appt_time + duration
 
-            overlapping_appointments = Appointment.objects.filter(doctor=doctor)
+            overlapping_appointments = Appointment.objects.filter(doctor=doctor).select_related('service')
             if self.instance and self.instance.pk:
                 overlapping_appointments = overlapping_appointments.exclude(pk=self.instance.pk)
 
             for existing in overlapping_appointments:
                 existing_start = existing.appointment_date_time
-                existing_duration = timedelta(minutes=existing.service.duration_minutes)
-                existing_end = existing_start + existing_duration
+
+                if appt_time == existing_start:
+                    continue
+
+                existing_end = existing_start + timedelta(minutes=existing.service.duration_minutes)
 
                 if appt_time < existing_end and appt_end_time > existing_start:
+                    local_start = timezone.localtime(existing_start)
+                    local_end = timezone.localtime(existing_end)
                     raise forms.ValidationError(
                         f"Dr. {doctor.full_name} already has an overlapping appointment "
-                        f"scheduled from {existing_start.strftime('%H:%M')} to {existing_end.strftime('%H:%M')}."
+                        f"scheduled from {local_start.strftime('%H:%M')} to {local_end.strftime('%H:%M')}."
                     )
 
         return cleaned_data
 
 
 class AppointmentDeleteForm(AppointmentForm):
+    """Form used for confirming and deleting an existing appointment."""
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
