@@ -161,3 +161,13 @@ def service_create_view(request):
         'form': form,
     }
     return render(request, 'specialists/service_form.html', context)
+
+def service_detail_view(request, pk):
+    service = get_object_or_404(
+        Service.objects.prefetch_related('doctors'),
+        pk=pk,
+    )
+    context = {
+        'service': service,
+    }
+    return render(request, 'specialists/service_detail.html', context)

@@ -23,13 +23,20 @@
                 <tbody>
                     {% for service in services %}
                         <tr>
-                            <td>{{ service.name }}</td>
+                            <td>
+                                <a href="{% url 'specialists:service-detail' service.pk %}" class="text-decoration-none fw-bold">
+                                    {{ service.name }}
+                                </a>
+                                {% if service.description %}
+                                    <small class="text-muted d-block">{{ service.description }}</small>
+                                {% endif %}
+                            </td>
                             <td>{{ service.duration_minutes }} min</td>
                             <td>${{ service.price|floatformat:2 }}</td>
                             <td>
-                                <span class="badge bg-secondary">
+                                <a href="{% url 'specialists:service-detail' service.pk %}" class="badge bg-secondary text-decoration-none">
                                     {{ service.doctor_total }} doctor{{ service.doctor_total|pluralize }}
-                                </span>
+                                </a>
                             </td>
                         </tr>
                     {% endfor %}

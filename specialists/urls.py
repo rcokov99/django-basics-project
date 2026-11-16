@@ -9,6 +9,7 @@ from specialists.views import (
     doctor_list_view,
     service_create_view,
     service_list_view,
+    service_detail_view,
 )
 
 app_name = 'specialists'
@@ -25,4 +26,5 @@ urlpatterns = [
 
     path('services/', service_list_view, name='service-list'),
     path('services/add/', service_create_view, name='service-create'),
+    path('services/<int:pk>/', service_detail_view, name='service-detail'),
 ]
