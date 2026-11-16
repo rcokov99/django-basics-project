@@ -59,13 +59,7 @@
                                 {{ appointment.patient_name }}
                                 <small class="text-muted d-block">{{ appointment.patient_email }}</small>
                             </td>
-                            <td>
-                                {% if appointment.service %}
-                                    {{ appointment.service.name }}
-                                {% else %}
-                                    <span class="text-muted">-</span>
-                                {% endif %}
-                            </td>
+                            <td>{{ appointment.service.name }}</td>
                             <td>
                                 {% if appointment.appointment_date_time < now %}
                                     <span class="badge bg-secondary">Past</span>

@@ -6,7 +6,7 @@ from specialists.models import Doctor
 
 
 def appointment_list_view(request):
-    appointments = Appointment.objects.select_related('doctor','service')
+    appointments = Appointment.objects.select_related('doctor', 'service')
 
     doctor_id = request.GET.get('doctor', '')
     status_filter = request.GET.get('status', '')
