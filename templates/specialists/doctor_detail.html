@@ -28,6 +28,8 @@
                     <p>{{ doctor.bio|linebreaks }}</p>
 
                     <div class="d-flex gap-2 mt-4">
+                        <a href="{% url 'appointments:appointment-create' %}?doctor={{ doctor.pk }}"
+                           class="btn btn-primary">Book appointment</a>
                         <a href="{% url 'specialists:doctor-edit' doctor.pk %}"
                            class="btn btn-outline-secondary">Edit</a>
                         <a href="{% url 'specialists:doctor-delete' doctor.pk %}"

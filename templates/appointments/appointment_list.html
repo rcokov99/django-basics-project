@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}MedCentral | Appointments{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Appointments</h1>
+        <a href="{% url 'appointments:appointment-create' %}" class="btn btn-primary">+ Book appointment</a>
+    </div>
+
+    <form method="get" class="row g-3 mb-4 bg-white p-3 rounded shadow-sm">
+        <div class="col-md-5">
+            <select name="doctor" class="form-select">
+                <option value="">All doctors</option>
+                {% for doctor in doctors %}
+                    <option value="{{ doctor.pk }}"
+                            {% if selected_doctor == doctor.pk|stringformat:"s" %}selected{% endif %}>
+                        Dr. {{ doctor.full_name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-5">
+            <select name="status" class="form-select">
+                <option value="">All appointments</option>
+                <option value="upcoming" {% if selected_status == 'upcoming' %}selected{% endif %}>Upcoming</option>
+                <option value="past" {% if selected_status == 'past' %}selected{% endif %}>Past</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-grid">
+            <button type="submit" class="btn btn-primary">Filter</button>
+        </div>
+    </form>
+
+    {% if appointments %}
+        <div class="card shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Date &amp; time</th>
+                        <th>Doctor</th>
+                        <th>Patient</th>
+                        <th>Service</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for appointment in appointments %}
+                        <tr>
+                            <td>{{ appointment.appointment_date_time|date:"D, d M Y H:i" }}</td>
+                            <td>
+                                <a href="{% url 'specialists:doctor-detail' appointment.doctor.pk %}">
+                                    Dr. {{ appointment.doctor.full_name }}
+                                </a>
+                            </td>
+                            <td>
+                                {{ appointment.patient_name }}
+                                <small class="text-muted d-block">{{ appointment.patient_email }}</small>
+                            </td>
+                            <td>
+                                {% if appointment.service %}
+                                    {{ appointment.service.name }}
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if appointment.appointment_date_time < now %}
+                                    <span class="badge bg-secondary">Past</span>
+                                {% else %}
+                                    <span class="badge bg-success">Upcoming</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <a href="{% url 'appointments:appointment-edit' appointment.pk %}"
+                                   class="btn btn-sm btn-outline-secondary">Edit</a>
+                                <a href="{% url 'appointments:appointment-delete' appointment.pk %}"
+                                   class="btn btn-sm btn-outline-danger">Cancel</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            No appointments found.
+            <a href="{% url 'appointments:appointment-create' %}">Book an appointment</a>.
+        </div>
+    {% endif %}
+{% endblock %}
