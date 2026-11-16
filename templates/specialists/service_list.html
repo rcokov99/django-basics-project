@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}MedCentral | Services{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Services</h1>
+    <a href="{% url 'specialists:service-create' %}" class="btn btn-primary">+ Add service</a>
+</div>
+
+{% if services %}
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Service</th>
+                        <th>Duration</th>
+                        <th>Price</th>
+                        <th>Offered by</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for service in services %}
+                        <tr>
+                            <td>{{ service.name }}</td>
+                            <td>{{ service.duration_minutes }} min</td>
+                            <td>${{ service.price|floatformat:2 }}</td>
+                            <td>
+                                <span class="badge bg-secondary">
+                                    {{ service.doctor_total }} doctor{{ service.doctor_total|pluralize }}
+                                </span>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% else %}
+    <div class="alert alert-info">
+        No services yet.
+        <a href="{% url 'specialists:service-create' %}">Add the first service</a>.
+    </div>
+{% endif %}
+{% endblock %}

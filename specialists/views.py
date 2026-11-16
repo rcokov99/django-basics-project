@@ -1,8 +1,8 @@
 from django.db.models import Avg, Count, F, Q
 from django.shortcuts import get_object_or_404, redirect, render
 
-from specialists.forms import DepartmentForm
-from specialists.models import Department, Doctor
+from specialists.forms import DepartmentForm, ServiceForm
+from specialists.models import Department, Doctor, Service
 
 
 def doctor_list_view(request):
@@ -79,3 +79,32 @@ def department_create_view(request):
         'form': form,
     }
     return render(request, 'specialists/department_form.html', context)
+
+
+# --- SERVICE VIEWS ---
+
+
+def service_list_view(request):
+    services = Service.objects.annotate(
+        doctor_total=Count('doctors')
+    ).order_by('name')
+
+    context = {
+        'services': services,
+    }
+    return render(request, 'specialists/service_list.html', context)
+
+
+def service_create_view(request):
+    if request.method == 'POST':
+        form = ServiceForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('specialists:service-list')
+    else:
+        form = ServiceForm()
+
+    context = {
+        'form': form,
+    }
+    return render(request, 'specialists/service_form.html', context)

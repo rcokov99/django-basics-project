@@ -1,5 +1,3 @@
-from django.db import models
-
 from django.core.validators import MinLengthValidator, MinValueValidator
 from django.db import models
 from django.db.models import Avg
@@ -19,6 +17,7 @@ class Department(models.Model):
 
 class Service(models.Model):
     name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True)
     price = models.DecimalField(
         max_digits=6,
         decimal_places=2,
