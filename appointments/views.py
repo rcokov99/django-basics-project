@@ -6,7 +6,7 @@ from specialists.models import Doctor
 
 
 def appointment_list_view(request):
-    appointments = Appointment.objects.select_related('doctor')
+    appointments = Appointment.objects.select_related('doctor','service')
 
     doctor_id = request.GET.get('doctor', '')
     status_filter = request.GET.get('status', '')
@@ -35,9 +35,11 @@ def appointment_list_view(request):
 def appointment_create_view(request):
     initial = {}
     doctor_id = request.GET.get('doctor')
+    service_id = request.GET.get('service')
     if doctor_id and doctor_id.isdigit():
         initial['doctor'] = doctor_id
-
+    if service_id and service_id.isdigit():
+        initial['service'] = service_id
     if request.method == 'POST':
         form = AppointmentForm(request.POST)
         if form.is_valid():

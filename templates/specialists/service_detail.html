@@ -36,7 +36,7 @@
                                 <p class="card-text text-muted small">{{ doctor.bio|truncatechars:100 }}</p>
                             </div>
                             <div class="mt-3">
-                                <a href="{% url 'appointments:appointment-create' %}?doctor={{ doctor.pk }}"
+                                <a href="{% url 'appointments:appointment-create' %}?doctor={{ doctor.pk }}&service={{ service.pk }}"
                                    class="btn btn-sm btn-outline-primary">
                                     Book Appointment
                                 </a>
