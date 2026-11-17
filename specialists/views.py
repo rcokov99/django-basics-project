@@ -107,9 +107,6 @@ def doctor_delete_view(request, pk):
     return render(request, 'specialists/doctor_delete.html', context)
 
 
-# --- DEPARTMENT VIEWS ---
-
-
 def department_list_view(request):
     departments = Department.objects.annotate(
         doctor_total=Count('doctors')
@@ -136,9 +133,6 @@ def department_create_view(request):
     return render(request, 'specialists/department_form.html', context)
 
 
-# --- SERVICE VIEWS ---
-
-
 def service_list_view(request):
     services = Service.objects.annotate(
         doctor_total=Count('doctors')
@@ -163,6 +157,7 @@ def service_create_view(request):
         'form': form,
     }
     return render(request, 'specialists/service_form.html', context)
+
 
 def service_detail_view(request, pk):
     service = get_object_or_404(
