@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load rating_tags %}
 
 {% block title %}MedCentral | Dr. {{ doctor.full_name }}{% endblock %}
 
@@ -23,7 +24,12 @@
                         {{ doctor.years_of_experience }} year{{ doctor.years_of_experience|pluralize }} of experience
                     </span>
                     </p>
-                    <p class="rating fs-5">⭐ {{ doctor.average_rating|floatformat:1 }} / 5</p>
+                    <p class="rating fs-5 mb-0">
+                        {{ doctor.average_rating|stars }}
+                        {% if doctor.average_rating > 0 %}
+                            <span class="text-muted ms-1 fs-6">({{ doctor.average_rating|floatformat:1 }} / 5)</span>
+                        {% endif %}
+                    </p>
                     <h5 class="mt-4">About</h5>
                     <p>{{ doctor.bio|linebreaks }}</p>
 
@@ -52,7 +58,7 @@
                                 <strong>{{ review.reviewer_name }}</strong>
                                 <span class="text-muted small">{{ review.created_at|date:"d M Y" }}</span>
                             </div>
-                            <div class="rating">⭐ {{ review.rating }} / 5</div>
+                            <div class="rating">{{ review.rating|stars }}</div>
                             <p class="mb-0">{{ review.comment }}</p>
                         </div>
                     {% empty %}
