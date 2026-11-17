@@ -2,7 +2,6 @@ from datetime import time, timedelta
 from django import forms
 from django.utils import timezone
 from appointments.models import Appointment, Review
-from specialists.models import Doctor, Service
 from common.forms import BootstrapFormMixin
 from django.core.exceptions import NON_FIELD_ERRORS
 
