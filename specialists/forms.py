@@ -12,7 +12,7 @@ class DepartmentForm(BootstrapFormMixin, forms.ModelForm):
             'description': 'Department Overview',
         }
         help_texts = {
-            'name': 'Enter the official clinical department name (e.g., Cardiology, Pediatrics).',
+            'name': 'Enter the official clinical department name (e.g., Cardiology, Neurology).',
             'description': 'Briefly summarize the conditions treated and care provided in this department.',
         }
         widgets = {
@@ -110,29 +110,30 @@ class ServiceForm(BootstrapFormMixin, forms.ModelForm):
 class DoctorForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = Doctor
-        fields = ['full_name', 'specialty', 'years_of_experience', 'bio', 'department', 'services']
+        fields = ['full_name', 'department', 'specialty', 'years_of_experience', 'bio', 'services']
         labels = {
             'full_name': 'Full Name',
-            'specialty': 'Medical Specialty',
+            'department': 'Department',
+            'specialty': 'Specialty',
             'years_of_experience': 'Years of Experience',
             'bio': 'Biography',
-            'department': 'Department',
             'services': 'Offered Services',
         }
         help_texts = {
             'full_name': 'Enter the doctor’s full professional name without "Dr." (letters, spaces, dots, hyphens, and apostrophes).',
-            'specialty': 'Primary area of medical expertise (e.g., Cardiologist).',
+            'department': 'Select the clinical department this doctor belongs to.',
+            'specialty': 'Specific area of expertise within the department',
             'years_of_experience': 'Total years practicing medicine (maximum 60).',
             'bio': 'Provide a short professional biography and background overview.',
-            'department': 'Select the clinical department this doctor belongs to.',
             'services': 'Select all medical services this specialist provides.',
         }
         widgets = {
             'full_name': forms.TextInput(attrs={
                 'placeholder': 'e.g., John Smith',
             }),
+            'department': forms.Select(),
             'specialty': forms.TextInput(attrs={
-                'placeholder': 'e.g., Cardiology',
+                'placeholder': 'e.g., Pediatric Cardiologist',
             }),
             'years_of_experience': forms.NumberInput(attrs={
                 'placeholder': 'e.g., 10',
@@ -143,12 +144,14 @@ class DoctorForm(BootstrapFormMixin, forms.ModelForm):
                 'placeholder': 'Write a brief professional background and clinical focus...',
                 'rows': 4,
             }),
-            'department': forms.Select(),
             'services': forms.CheckboxSelectMultiple(),
         }
         error_messages = {
             'full_name': {
                 'required': 'Please enter the doctor’s full name.',
+            },
+            'department': {
+                'required': 'Please select a department.',
             },
             'specialty': {
                 'required': 'Please specify a specialty.',
@@ -156,9 +159,6 @@ class DoctorForm(BootstrapFormMixin, forms.ModelForm):
             'years_of_experience': {
                 'required': 'Please specify years of experience.',
                 'invalid': 'Enter a valid number for experience.',
-            },
-            'department': {
-                'required': 'Please select a department.',
             },
             'services': {
                 'required': 'Please select at least one service.',
