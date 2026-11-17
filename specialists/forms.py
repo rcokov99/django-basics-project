@@ -50,12 +50,12 @@ class ServiceForm(BootstrapFormMixin, forms.ModelForm):
             'name': 'Service Name',
             'description': 'Service Description',
             'duration_minutes': 'Duration (Minutes)',
-            'price': 'Price ($)',
+            'price': 'Price (€)',
         }
         help_texts = {
             'name': 'Enter the name of the medical service or procedure.',
             'duration_minutes': 'Estimated duration of the service in minutes (minimum 5).',
-            'price': 'Standard fee for this service in USD.',
+            'price': 'Standard fee for this service in EUR€.',
         }
         widgets = {
             'name': forms.TextInput(attrs={

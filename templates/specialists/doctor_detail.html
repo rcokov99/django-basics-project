@@ -77,7 +77,7 @@
                         <span>{{ service.name }}
                             <small class="text-muted d-block">{{ service.duration_minutes }} min</small>
                         </span>
-                            <span class="fw-bold">${{ service.price }}</span>
+                            <span class="fw-bold">€{{ service.price }}</span>
                         </li>
                     {% empty %}
                         <li class="list-group-item text-muted">No services listed.</li>

@@ -32,7 +32,7 @@
                                 {% endif %}
                             </td>
                             <td>{{ service.duration_minutes }} min</td>
-                            <td>${{ service.price|floatformat:2 }}</td>
+                            <td>€{{ service.price|floatformat:2 }}</td>
                             <td>
                                 <a href="{% url 'specialists:service-detail' service.pk %}" class="badge bg-secondary text-decoration-none">
                                     {{ service.doctor_total }} doctor{{ service.doctor_total|pluralize }}
