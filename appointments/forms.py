@@ -1,7 +1,7 @@
 from datetime import time, timedelta
 from django import forms
 from django.utils import timezone
-from appointments.models import Appointment
+from appointments.models import Appointment, Review
 from specialists.models import Doctor, Service
 from common.forms import BootstrapFormMixin
 from django.core.exceptions import NON_FIELD_ERRORS
@@ -126,3 +126,48 @@ class AppointmentDeleteForm(AppointmentForm):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.disabled = True
+
+
+class ReviewForm(BootstrapFormMixin, forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ['reviewer_name', 'rating', 'comment']
+        labels = {
+            'reviewer_name': 'Your Name',
+            'rating': 'Rating',
+            'comment': 'Comment',
+        }
+        help_texts = {
+            'reviewer_name': 'Enter your full name.',
+            'rating': 'Rate your experience from 1 to 5 stars.',
+            'comment': 'Write a detailed comment about your visit.',
+        }
+        widgets = {
+            'reviewer_name': forms.TextInput(attrs={
+                'placeholder': 'e.g., John Smith',
+            }),
+            'rating': forms.Select(
+                choices=[('', 'Select a rating')] + [(i, f"{i} Star{'s' if i > 1 else ''}") for i in range(1, 6)],
+            ),
+            'comment': forms.Textarea(attrs={
+                'rows': 4,
+                'placeholder': 'Share your experience with this doctor...',
+            }),
+        }
+        error_messages = {
+            'reviewer_name': {
+                'required': 'Please enter your name.',
+            },
+            'rating': {
+                'required': 'Please select a rating.',
+            },
+            'comment': {
+                'required': 'Please enter a review comment.',
+            },
+        }
+
+    def clean_comment(self):
+        comment = self.cleaned_data.get('comment')
+        if comment and len(comment.strip()) < 10:
+            raise forms.ValidationError('Comment must be at least 10 characters long.')
+        return comment.strip()

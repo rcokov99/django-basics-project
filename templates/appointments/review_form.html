@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}MedCentral | Review Dr. {{ doctor.full_name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h1 class="h3 mb-4">Leave a review for Dr. {{ doctor.full_name }}</h1>
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% include 'partials/form_fields.html' %}
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Submit review</button>
+                        <a href="{% url 'specialists:doctor-detail' doctor.pk %}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

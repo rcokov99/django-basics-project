@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from appointments.forms import AppointmentForm, AppointmentDeleteForm
+from appointments.forms import AppointmentForm, AppointmentDeleteForm, ReviewForm
 from appointments.models import Appointment
 from specialists.models import Doctor
 
@@ -85,3 +85,23 @@ def appointment_delete_view(request, pk):
         'appointment': appointment,
     }
     return render(request, 'appointments/appointment_delete.html', context)
+
+
+def review_create_view(request, doctor_pk):
+    doctor = get_object_or_404(Doctor, pk=doctor_pk)
+
+    if request.method == 'POST':
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.doctor = doctor
+            review.save()
+            return redirect('specialists:doctor-detail', pk=doctor.pk)
+    else:
+        form = ReviewForm()
+
+    context = {
+        'form': form,
+        'doctor': doctor,
+    }
+    return render(request, 'appointments/review_form.html', context)

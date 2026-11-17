@@ -4,6 +4,7 @@ from appointments.views import (
     appointment_create_view,
     appointment_edit_view,
     appointment_delete_view,
+    review_create_view,
 )
 
 app_name = 'appointments'
@@ -13,4 +14,5 @@ urlpatterns = [
     path('add/', appointment_create_view, name='appointment-create'),
     path('<int:pk>/edit/', appointment_edit_view, name='appointment-edit'),
     path('<int:pk>/delete/', appointment_delete_view, name='appointment-delete'),
+    path('reviews/add/<int:doctor_pk>/', review_create_view, name='review-create'),
 ]

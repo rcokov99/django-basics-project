@@ -41,7 +41,9 @@
             <div class="card shadow-sm">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h4 class="mb-0">Patient reviews</h4>
+                        <h3 class="mb-0">Patient reviews</h3>
+                        <a href="{% url 'appointments:review-create' doctor.pk %}"
+                           class="btn btn-outline-primary btn-sm">+ Leave a review</a>
                     </div>
 
                     {% for review in doctor.reviews.all %}
